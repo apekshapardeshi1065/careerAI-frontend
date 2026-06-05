@@ -19,9 +19,9 @@ const AdminPage = () => {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [statsRes, usersRes, activitiesRes] = await Promise.all([
-        fetch('http://localhost:5000/api/admin/stats', { headers }),
-        fetch('http://localhost:5000/api/admin/users', { headers }),
-        fetch('http://localhost:5000/api/admin/activities', { headers })
+        fetch('https://careerai-backend-2umd.onrender.com/api/admin/stats', { headers }),
+        fetch('https://careerai-backend-2umd.onrender.com/api/admin/users', { headers }),
+        fetch('https://careerai-backend-2umd.onrender.com/api/admin/activities', { headers })
       ]);
 
       const statsData = await statsRes.json();

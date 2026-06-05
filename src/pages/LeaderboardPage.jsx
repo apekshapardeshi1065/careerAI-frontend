@@ -14,7 +14,7 @@ const LeaderboardPage = () => {
   const fetchLeaderboard = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/leaderboard', {
+      const res = await fetch('https://careerai-backend-2umd.onrender.com/api/leaderboard', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();

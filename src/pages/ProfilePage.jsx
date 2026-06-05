@@ -20,8 +20,8 @@ const ProfilePage = () => {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [roadmapRes, resumeRes] = await Promise.all([
-        fetch('http://localhost:5000/api/roadmap/my', { headers }),
-        fetch('http://localhost:5000/api/resume/my', { headers })
+        fetch('https://careerai-backend-2umd.onrender.com/api/roadmap/my', { headers }),
+        fetch('https://careerai-backend-2umd.onrender.com/api/resume/my', { headers })
       ]);
 
       const roadmapData = await roadmapRes.json();

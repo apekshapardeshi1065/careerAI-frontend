@@ -147,8 +147,7 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="text-center py-8 text-gray-500 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-        <p>© 2026 CareerAI — Built with ❤️ for students </p>
-        <p>Created By -Apeksha</p>
+        <p>© 2026 CareerAI. Developed with ❤️ by Apeksha </p>
       </footer>
     </div>
   );

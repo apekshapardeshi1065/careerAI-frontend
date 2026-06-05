@@ -17,7 +17,7 @@ const ResumePage = () => {
   const fetchPastResumes = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/resume/my', {
+      const res = await fetch('https://careerai-backend-2umd.onrender.com/api/resume/my', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -36,7 +36,7 @@ const ResumePage = () => {
       const formData = new FormData();
       formData.append('resume', file);
 
-      const res = await fetch('http://localhost:5000/api/resume/upload', {
+      const res = await fetch('https://careerai-backend-2umd.onrender.com/api/resume/upload', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
