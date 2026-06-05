@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
-import { generateRoadmap } from '../utils/api';
+// import { generateRoadmap } from '../utils/api';
 
 const skillOptions = [
   'JavaScript', 'Python', 'React', 'Node.js', 'Java', 'C++',
