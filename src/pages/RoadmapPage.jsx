@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Navbar from '../components/Navbar';
-
 import SkillTree from '../components/SkillTree';
-import MarketGraph from '../components/MarketGraph';
 import GapAnalyzer from '../components/GapAnalyzer';
 
 const marketData = [
@@ -23,20 +21,36 @@ const RoadmapPage = () => {
   const [activeStage, setActiveStage] = useState(0);
 
   useEffect(() => {
-    const data = localStorage.getItem('roadmapData');
-    if (!data) { navigate('/dashboard'); return; }
-    setRoadmap(JSON.parse(data));
+    // ✅ Fresh data lo localStorage se
+    const raw = localStorage.getItem('roadmapData');
+    console.log('📦 Raw roadmap from localStorage:', raw);
+
+    if (!raw) {
+      navigate('/dashboard');
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      console.log('✅ Parsed roadmap:', parsed);
+      console.log('✅ Salary:', parsed.averageSalary);
+      console.log('✅ Duration:', parsed.totalDuration);
+      setRoadmap(parsed);
+    } catch (err) {
+      console.error('Parse error:', err);
+      navigate('/dashboard');
+    }
   }, [navigate]);
 
   if (!roadmap) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0f' }}>
+    <div className="min-h-screen flex items-center justify-center"
+      style={{ background: '#0a0a0f' }}>
       <div className="text-center">
         <div className="text-6xl mb-4 animate-spin">⏳</div>
         <p className="text-gray-400">Loading your roadmap...</p>
       </div>
     </div>
   );
-  
 
   return (
     <div style={{ background: '#0a0a0f', minHeight: '100vh' }}>
@@ -81,11 +95,17 @@ const RoadmapPage = () => {
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <div className="text-3xl mb-2">{card.icon}</div>
-              <div className="text-xl font-bold text-white mb-1">{card.value}</div>
+              <div className="text-2xl font-bold text-white mb-1">{card.value}</div>
               <div className="text-gray-400 text-sm">{card.label}</div>
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Skill Tree */}
+        <SkillTree stages={roadmap.stages} />
+
+        {/* Gap Analyzer */}
+        <GapAnalyzer stages={roadmap.stages} />
 
         {/* Roadmap Stages */}
         <motion.div
@@ -95,14 +115,8 @@ const RoadmapPage = () => {
           className="mb-12"
         >
           <h2 className="text-2xl font-bold mb-6">🗺️ Your Learning Roadmap</h2>
-          <SkillTree stages={roadmap.stages} />
-<MarketGraph career={roadmap.careerTitle} />
-<GapAnalyzer
-  userSkills={JSON.parse(localStorage.getItem('userSkills') || '[]')}
-  stages={roadmap.stages}
-/>
 
-          {/* Stage Navigation */}
+          {/* Stage Buttons */}
           <div className="flex gap-2 mb-6 flex-wrap">
             {roadmap.stages?.map((stage, i) => (
               <button
@@ -124,7 +138,7 @@ const RoadmapPage = () => {
             ))}
           </div>
 
-          {/* Active Stage Detail */}
+          {/* Active Stage */}
           {roadmap.stages?.[activeStage] && (
             <motion.div
               key={activeStage}
@@ -138,36 +152,28 @@ const RoadmapPage = () => {
                   <h3 className="text-2xl font-bold text-white mb-1">
                     Stage {roadmap.stages[activeStage].stage}: {roadmap.stages[activeStage].title}
                   </h3>
-                  <p className="text-gray-400">⏱️ Duration: {roadmap.stages[activeStage].duration}</p>
+                  <p className="text-gray-400">⏱️ {roadmap.stages[activeStage].duration}</p>
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-medium capitalize"
-                  style={{ background: 'rgba(99,102,241,0.2)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)' }}>
+                  style={{ background: 'rgba(99,102,241,0.2)', color: '#818cf8' }}>
                   {roadmap.stages[activeStage].status}
                 </span>
               </div>
 
-              {/* Skills to Learn */}
               <div className="mb-6">
                 <h4 className="text-gray-300 font-medium mb-3">🎯 Skills to Learn:</h4>
                 <div className="flex flex-wrap gap-2">
                   {roadmap.stages[activeStage].skills?.map((skill, j) => (
-                    <motion.span
-                      key={j}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: j * 0.05 }}
-                      className="px-3 py-1 rounded-lg text-sm"
-                      style={{ background: 'rgba(99,102,241,0.2)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)' }}
-                    >
+                    <span key={j} className="px-3 py-1 rounded-lg text-sm"
+                      style={{ background: 'rgba(99,102,241,0.2)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)' }}>
                       {skill}
-                    </motion.span>
+                    </span>
                   ))}
                 </div>
               </div>
 
-              {/* Resources */}
               <div>
-                <h4 className="text-gray-300 font-medium mb-3">📚 Learning Resources:</h4>
+                <h4 className="text-gray-300 font-medium mb-3">📚 Resources:</h4>
                 <div className="flex flex-wrap gap-2">
                   {roadmap.stages[activeStage].resources?.map((res, j) => (
                     <span key={j} className="px-3 py-1 rounded-lg text-sm"
@@ -189,14 +195,14 @@ const RoadmapPage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
                 onClick={() => setActiveStage(i)}
-                className="flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all"
+                className="flex items-center gap-4 p-4 rounded-2xl cursor-pointer"
                 style={{
                   background: activeStage === i ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.02)',
                   border: activeStage === i ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.05)'
                 }}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm"
+                  style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white' }}>
                   {stage.stage}
                 </div>
                 <div className="flex-1">
@@ -222,9 +228,6 @@ const RoadmapPage = () => {
             {roadmap.jobRoles?.map((role, i) => (
               <motion.span
                 key={i}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
                 whileHover={{ scale: 1.05 }}
                 className="px-5 py-2 rounded-xl font-medium"
                 style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2))', border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8' }}
@@ -235,7 +238,7 @@ const RoadmapPage = () => {
           </div>
         </motion.div>
 
-        {/* Market Demand Chart */}
+        {/* Market Graph */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -249,9 +252,7 @@ const RoadmapPage = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="name" stroke="#6b7280" />
               <YAxis stroke="#6b7280" />
-              <Tooltip
-                contentStyle={{ background: '#1f2937', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 12, color: '#fff' }}
-              />
+              <Tooltip contentStyle={{ background: '#1f2937', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 12, color: '#fff' }} />
               <Bar dataKey="demand" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} />
               <defs>
                 <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">

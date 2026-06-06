@@ -31,16 +31,23 @@ const Dashboard = () => {
       prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
     );
   };
-
-  const handleGenerate = async () => {
+const handleGenerate = async () => {
   if (selectedSkills.length === 0) return setError('Please select at least one skill!');
   if (!interest) return setError('Please select a career interest!');
   if (!experience) return setError('Please select experience level!');
 
   setLoading(true);
   setError('');
+
+  localStorage.removeItem('roadmapData');
+  localStorage.removeItem('userSkills');
+  localStorage.removeItem('userExperience');
+
   try {
     const token = localStorage.getItem('token');
+
+    console.log('🚀 Sending request:', { skills: selectedSkills, interest, experience });
+
     const response = await fetch('https://careerai-backend-2umd.onrender.com/api/roadmap/generate', {
       method: 'POST',
       headers: {
@@ -49,25 +56,36 @@ const Dashboard = () => {
       },
       body: JSON.stringify({
         skills: selectedSkills,
-        interest,
-        experience
+        interest: interest,
+        experience: experience
       })
     });
 
     const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed');
-    }
+    console.log('📦 Response data:', data);
+    console.log('💰 New Salary:', data.roadmap?.averageSalary);
+    console.log('⏱️ New Duration:', data.roadmap?.totalDuration);
+
+    if (!response.ok) throw new Error(data.message || 'Failed');
+
+    if (!data.roadmap) throw new Error('No roadmap in response!');
 
     localStorage.setItem('roadmapData', JSON.stringify(data.roadmap));
+    localStorage.setItem('userSkills', JSON.stringify(selectedSkills));
+    localStorage.setItem('userExperience', experience);
+
+    console.log('✅ Saved to localStorage!');
+
     navigate('/roadmap');
   } catch (err) {
-    console.error('Error:', err);
-    setError('Failed to generate roadmap: ' + err.message);
+    console.error('❌ Error:', err);
+    setError('Failed: ' + err.message);
   }
+
   setLoading(false);
 };
+
 
   return (
     <div style={{ background: '#0a0a0f', minHeight: '100vh' }}>
@@ -75,7 +93,6 @@ const Dashboard = () => {
 
       <div className="max-w-5xl mx-auto px-6 pt-28 pb-20">
 
-        {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -87,7 +104,7 @@ const Dashboard = () => {
           <p className="text-gray-400 text-lg">Let's generate your personalized AI career roadmap</p>
         </motion.div>
 
-        {/* Stats Cards */}
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
